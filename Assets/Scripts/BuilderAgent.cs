@@ -43,11 +43,11 @@ public class BuilderAgent : Agent
         foreach(GameObject u in zPlanks) { Destroy(u); }
         zPlanks.Clear();
 
-        Builder.localPosition = new Vector3(0, 2.0f, 0);
+        Builder.localPosition = Start.transform.localPosition + new Vector3(0, 2f, 0);
         currentClosestObject = Start;
         distanceToTarget = Vector3.Distance(currentClosestObject.transform.localPosition, Target.transform.localPosition);
         initialDistanceToTarget = distanceToTarget;
-        Debug.Log($"Distance to target is {distanceToTarget}");
+        Debug.Log("New episode begins.");
     }
 
     public GameObject DoAction(ActionSegment<int> act)
@@ -74,7 +74,7 @@ public class BuilderAgent : Agent
                 position.y = 0.5f;
                 GameObject support = Instantiate(supportPrefab, position, Quaternion.identity);
                 supports.Add(support);
-                if (Vector3.Distance(currentClosestObject.transform.localPosition, support.transform.localPosition) < 2.0f) { AddReward(0.1f); }
+                if (Vector3.Distance(currentClosestObject.transform.localPosition, support.transform.localPosition) < 2.0f) { AddReward(0.01f); }
                 break;
             // case 6:
             //     position.y = 1.05f;
@@ -96,6 +96,10 @@ public class BuilderAgent : Agent
         if(action == 1 | action == 2 | action == 3| action == 4)
         {
             Builder.transform.Translate(dirToGo);
+            if (Builder.localPosition.x <= -5f | Builder.localPosition.x >= 5f | Builder.localPosition.z >= 5f | Builder.localPosition.z <= -5f)
+            {
+                Builder.localPosition = Start.transform.localPosition + new Vector3(0, 2f, 0);
+            }
         }
         return null;
     }
@@ -116,6 +120,7 @@ public class BuilderAgent : Agent
     // Called every step of the engine. Here the agent takes an action.
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
+        Debug.Log($"Cummulatibe reward: {GetCumulativeReward()}");
         // Check whether a new construct is stable
         if(AnyVelocity(supports) | AnyVelocity(xPlanks) | AnyVelocity(zPlanks))  // | AnyVelocity(nodes)
         { 
@@ -131,7 +136,6 @@ public class BuilderAgent : Agent
         {
             Vector3 currentPos = currentClosestObject.transform.localPosition;
             Vector3 sizeCurrent = currentClosestObject.GetComponent<Renderer>().bounds.size; 
-            // Debug.Log($"currentPos: {currentPos}; sizeCurrent: {sizeCurrent}");
             float negXCurrent = currentPos.x - sizeCurrent.x / 2f;
             float posXCurrent = currentPos.x + sizeCurrent.x / 2f;
             float negZCurrent = currentPos.z - sizeCurrent.z / 2f;
@@ -139,24 +143,21 @@ public class BuilderAgent : Agent
 
             Vector3 pretenderPos = objectPretender.transform.localPosition;
             Vector3 sizePretender = objectPretender.GetComponent<Renderer>().bounds.size; 
-            // Debug.Log($"pretenderPos: {pretenderPos}; sizePretender: {sizePretender}");
             float negXPretender = pretenderPos.x - sizePretender.x / 2f;
             float posXPretender = pretenderPos.x + sizePretender.x / 2f;
             float negZPretender = pretenderPos.z - sizePretender.z / 2f;
             float posZPretender = pretenderPos.z + sizePretender.z / 2f;
 
             bool xInLine = Mathf.Abs(posXCurrent - posXPretender) < 0.01f | Mathf.Abs(negXCurrent - negXPretender) < 0.01f ? true : false;
-            // Debug.Log($"posXCurrent: {posXCurrent}; posXPretender{posXPretender}");
             bool zInLine = Mathf.Abs(posZCurrent - posZPretender) < 0.01f | Mathf.Abs(negZCurrent - negZPretender) < 0.01f ? true : false;
 
             bool xTouches = Mathf.Abs(posXCurrent - negXPretender) < 0.01f | Mathf.Abs(negXCurrent - posXPretender) < 0.01f ? true : false;
             bool zTouches = Mathf.Abs(posZCurrent - negZPretender) < 0.01f | Mathf.Abs(negZCurrent - posZPretender) < 0.01f ? true : false;
-            // Debug.Log($"xInLine: {xInLine}; zInLine: {zInLine}; xTouches: {xTouches}; zTouches: {zTouches}");
 
             if ((xInLine & zTouches) | (zInLine & xTouches))
             {
+                AddReward(0.01f);
                 float pretenderDistanceToTarget = Vector3.Distance(pretenderPos, Target.transform.localPosition);
-                // Debug.Log($"Pretender to target: {pretenderDistanceToTarget}");
                 if (pretenderDistanceToTarget < 2.0f)
                 {
                     AddReward(1.0f);
@@ -167,22 +168,18 @@ public class BuilderAgent : Agent
                 {
                     currentClosestObject = objectPretender;
                     distanceToTarget = pretenderDistanceToTarget;
-                    Debug.Log($"Distance to target is {distanceToTarget}");
                     float reward = 1.0f - distanceToTarget / initialDistanceToTarget;
                     AddReward(reward);
-                    Debug.Log($"Reward: {reward}");
                 }
             }
         }
 
         // Move the agent using the action.
         objectPretender = DoAction(actionBuffers.DiscreteActions);
-        // Check if there is a new xPlank, or zPlank
-        // if(u != null) { objectPretender = u; }
 
-        AddReward(-0.01f);
+        AddReward(-0.001f);
 
-        if (StepCount > 100)
+        if (StepCount > 1000)
         {
             EndEpisode();
         }
