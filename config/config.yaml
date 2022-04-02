@@ -14,9 +14,9 @@ behaviors:
       epsilon_schedule: linear
     network_settings:
       normalize: false
-      vis_encode_type: resnet
+      vis_encode_type: match3
       hidden_units: 128
-      num_layers: 1
+      num_layers: 2
     reward_signals:
       extrinsic:
         gamma: 0.99
