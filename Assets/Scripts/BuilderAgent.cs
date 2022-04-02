@@ -27,10 +27,8 @@ public class BuilderAgent : Agent
     List<GameObject> xPlanks = new List<GameObject>(); 
     List<GameObject> zPlanks = new List<GameObject>(); 
 
-    public override void OnEpisodeBegin()
+    void ResetEnv()
     {
-        base.OnEpisodeBegin();
-
         foreach(GameObject u in supports) { Destroy(u); }
         supports.Clear();
 
@@ -47,7 +45,13 @@ public class BuilderAgent : Agent
         currentClosestObject = Start;
         distanceToTarget = Vector3.Distance(currentClosestObject.transform.localPosition, Target.transform.localPosition);
         initialDistanceToTarget = distanceToTarget;
-        Debug.Log("New episode begins.");
+    }
+
+    public override void OnEpisodeBegin()
+    {
+        base.OnEpisodeBegin();
+        ResetEnv();
+        // Debug.Log("New episode begins.");
     }
 
     public GameObject DoAction(ActionSegment<int> act)
@@ -74,7 +78,10 @@ public class BuilderAgent : Agent
                 position.y = 0.5f;
                 GameObject support = Instantiate(supportPrefab, position, Quaternion.identity);
                 supports.Add(support);
-                if (Vector3.Distance(currentClosestObject.transform.localPosition, support.transform.localPosition) < 2.0f) { AddReward(0.01f); }
+                if (Vector3.Distance(currentClosestObject.transform.localPosition, support.transform.localPosition) < 3.0f) 
+                { 
+                    AddReward(0.01f); 
+                }
                 break;
             // case 6:
             //     position.y = 1.05f;
@@ -85,11 +92,24 @@ public class BuilderAgent : Agent
                 position.y = 1.05f;
                 GameObject xPlank = Instantiate(plankXPrefab, position, Quaternion.identity);
                 xPlanks.Add(xPlank);
+                if (Vector3.Distance(currentClosestObject.transform.localPosition, xPlank.transform.localPosition) < 3.0f) 
+                { 
+                    AddReward(0.01f); 
+                    // Rigidbody rb = xPlank.GetComponent<Rigidbody>();
+                    // Debug.Log($"Velocity: {rb.velocity.magnitude:F10}; " 
+                    //         + $"Angular velocity: {rb.angularVelocity.magnitude:F10}; "
+                    //         + $"Step count: {StepCount}; "
+                    //         );
+                }
                 return xPlank;
             case 7:
                 position.y = 1.05f;
                 GameObject zPlank = Instantiate(plankZPrefab, position, Quaternion.identity);
                 zPlanks.Add(zPlank);
+                if (Vector3.Distance(currentClosestObject.transform.localPosition, zPlank.transform.localPosition) < 3.0f) 
+                { 
+                    AddReward(0.01f); 
+                }
                 return zPlank;
         }
         // Debug.Log($"Supports: {supports.Count}; Nodes: {nodes.Count}");
@@ -98,7 +118,9 @@ public class BuilderAgent : Agent
             Builder.transform.Translate(dirToGo);
             if (Builder.localPosition.x <= -5f | Builder.localPosition.x >= 5f | Builder.localPosition.z >= 5f | Builder.localPosition.z <= -5f)
             {
-                Builder.localPosition = Start.transform.localPosition + new Vector3(0, 2f, 0);
+                // Builder.localPosition = Start.transform.localPosition + new Vector3(0, 2f, 0);
+                Debug.Log($"Out of bounds. Step count: {StepCount}");
+                EndEpisode();
             }
         }
         return null;
@@ -109,7 +131,7 @@ public class BuilderAgent : Agent
         foreach(GameObject u in objects)
         {
             Rigidbody rb = u.GetComponent<Rigidbody>();
-            if(rb.velocity.magnitude > 0.1)
+            if(rb.velocity.magnitude > 0.1f | rb.angularVelocity.magnitude > 0.1f)
             {
                 return true;
             }
@@ -120,15 +142,29 @@ public class BuilderAgent : Agent
     // Called every step of the engine. Here the agent takes an action.
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        Debug.Log($"Cummulatibe reward: {GetCumulativeReward()}");
+        // Debug.Log($"Cummulatibe reward: {GetCumulativeReward()}");
+
+        SetReward(0.0f);
+        if (StepCount > 1000)
+        {
+            Debug.Log($"Full episode. Step count: {StepCount}");
+            EndEpisode();
+        }
         // Check whether a new construct is stable
-        if(AnyVelocity(supports) | AnyVelocity(xPlanks) | AnyVelocity(zPlanks))  // | AnyVelocity(nodes)
+        if(AnyVelocity(supports))  // | AnyVelocity(nodes)
         { 
-            SetReward(-1.0f);
+            // ResetEnv();
+            Debug.Log($"A support collapsed. Step count: {StepCount}");
             EndEpisode(); 
             return;
         }
-        SetReward(0.0f);
+        if(AnyVelocity(xPlanks) | AnyVelocity(zPlanks))  // | AnyVelocity(nodes)
+        { 
+            // ResetEnv();
+            Debug.Log($"A plank collapsed. Step count: {StepCount}");
+            EndEpisode(); 
+            return;
+        }
 
         // Check if a new xPlank, or zPlank from previous step touches a currentClosestObject
         // If so, reassing a currentClosestObject and recalculate distance
@@ -156,7 +192,7 @@ public class BuilderAgent : Agent
 
             if ((xInLine & zTouches) | (zInLine & xTouches))
             {
-                AddReward(0.01f);
+                AddReward(0.1f);
                 float pretenderDistanceToTarget = Vector3.Distance(pretenderPos, Target.transform.localPosition);
                 if (pretenderDistanceToTarget < 2.0f)
                 {
@@ -176,13 +212,6 @@ public class BuilderAgent : Agent
 
         // Move the agent using the action.
         objectPretender = DoAction(actionBuffers.DiscreteActions);
-
-        AddReward(-0.001f);
-
-        if (StepCount > 1000)
-        {
-            EndEpisode();
-        }
     }
 
     public override void Heuristic(in ActionBuffers actionsOut)
