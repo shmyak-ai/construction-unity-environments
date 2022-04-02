@@ -13,7 +13,7 @@ public class BuilderAgent : Agent
     public GameObject Start;
     public GameObject Target;
     public GameObject supportPrefab;
-    // public GameObject nodePrefab;
+    public GameObject nodePrefab;
     public GameObject plankXPrefab;
     public GameObject plankZPrefab;
 
@@ -24,7 +24,7 @@ public class BuilderAgent : Agent
     float initialDistanceToTarget;
 
     List<GameObject> supports = new List<GameObject>(); 
-    // List<GameObject> nodes = new List<GameObject>(); 
+    List<GameObject> nodes = new List<GameObject>(); 
     List<GameObject> xPlanks = new List<GameObject>(); 
     List<GameObject> zPlanks = new List<GameObject>(); 
 
@@ -33,8 +33,8 @@ public class BuilderAgent : Agent
         foreach(GameObject u in supports) { Destroy(u); }
         supports.Clear();
 
-        // foreach(GameObject u in nodes) { Destroy(u); }
-        // nodes.Clear();
+        foreach(GameObject u in nodes) { Destroy(u); }
+        nodes.Clear();
 
         foreach(GameObject u in xPlanks) { Destroy(u); }
         xPlanks.Clear();
@@ -99,12 +99,13 @@ public class BuilderAgent : Agent
                 //     AddReward(0.01f); 
                 // }
                 break;
-            // case 6:
-            //     position.y = 1.05f;
-            //     GameObject node = Instantiate(nodePrefab, position, Quaternion.identity);
-            //     nodes.Add(node);
-            //     return node;
             case 6:
+                position.y = 1.05f;
+                GameObject node = Instantiate(nodePrefab, position, Quaternion.identity);
+                lastObject = node;
+                nodes.Add(node);
+                return node;
+            case 7:
                 position.y = 1.05f;
                 GameObject xPlank = Instantiate(plankXPrefab, position, Quaternion.identity);
                 lastObject = xPlank;
@@ -119,7 +120,7 @@ public class BuilderAgent : Agent
                 //     //         );
                 // }
                 return xPlank;
-            case 7:
+            case 8:
                 position.y = 1.05f;
                 GameObject zPlank = Instantiate(plankZPrefab, position, Quaternion.identity);
                 lastObject = zPlank;
@@ -179,7 +180,7 @@ public class BuilderAgent : Agent
             EndEpisode(); 
             return;
         }
-        if(AnyVelocity(xPlanks) | AnyVelocity(zPlanks))  // | AnyVelocity(nodes)
+        if(AnyVelocity(xPlanks) | AnyVelocity(zPlanks) | AnyVelocity(nodes))
         { 
             // ResetEnv();
             Debug.Log($"A plank collapsed. Step count: {StepCount}");
@@ -189,7 +190,7 @@ public class BuilderAgent : Agent
         if(lastObject != null && Vector3.Distance(lastObject.transform.localPosition, currentClosestObject.transform.localPosition) <= 3.0f)
         {
             AddReward(0.01f);
-            Debug.Log("Add a in range reward.");
+            // Debug.Log("Add a in range reward.");
             lastObject = null;
         }
 
@@ -272,9 +273,9 @@ public class BuilderAgent : Agent
         {
             discreteActionsOut[0] = 7;
         }
-        // else if (Input.GetKeyUp(KeyCode.V))
-        // {
-        //     discreteActionsOut[0] = 8;
-        // }
+        else if (Input.GetKeyUp(KeyCode.V))
+        {
+            discreteActionsOut[0] = 8;
+        }
     }
 }

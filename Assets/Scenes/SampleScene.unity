@@ -1058,6 +1058,7 @@ MonoBehaviour:
   Start: {fileID: 283371817}
   Target: {fileID: 1183057377}
   supportPrefab: {fileID: 6765921747037057844, guid: 8d1cba8f8e88371e08c6074b79c971bd, type: 3}
+  nodePrefab: {fileID: 8918100451335224374, guid: 72f6cf2f8073319968aa821d081c897e, type: 3}
   plankXPrefab: {fileID: 6934948644336175671, guid: b2026e2fa94c65b07b1d8092686ae033, type: 3}
   plankZPrefab: {fileID: 2113140371524554584, guid: d71870b8eac4bdecbb096f5cf909568e, type: 3}
 --- !u!114 &2109136535
@@ -1073,7 +1074,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_BrainParameters:
-    VectorObservationSize: 0
+    VectorObservationSize: 6
     NumStackedVectorObservations: 1
     m_ActionSpec:
       m_NumContinuousActions: 0
@@ -1115,6 +1116,7 @@ MonoBehaviour:
   - Support
   - PlankX
   - PlankZ
+  - Node
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 1
@@ -1127,7 +1129,8 @@ MonoBehaviour:
   - {r: 0.17621933, g: 0.22959395, b: 0.8301887, a: 0}
   - {r: 0.10332859, g: 0.2038827, b: 0.8113208, a: 0}
   - {r: 0.07524917, g: 0.17327031, b: 0.8396226, a: 0}
+  - {r: 0.07524917, g: 0.17327031, b: 0.8396226, a: 0}
   m_GizmoYOffset: 0
-  m_ShowGizmos: 1
+  m_ShowGizmos: 0
   m_CompressionType: 1
   m_ObservationStacks: 1
