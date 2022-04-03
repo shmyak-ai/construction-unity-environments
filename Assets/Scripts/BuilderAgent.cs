@@ -17,6 +17,16 @@ public class BuilderAgent : Agent
     public GameObject plankXPrefab;
     public GameObject plankZPrefab;
 
+    int xStartLower = -8;
+    int xStartUpper = -2;
+    int zStartLower = -9;
+    int zStartUpper = 10;
+
+    int xTargetLower = 3;
+    int xTargetUpper = 9;
+    int zTargetLower = -9;
+    int zTargetUpper = 10;
+
     GameObject currentClosestObject;
     GameObject objectPretender;
     GameObject lastObject = null;
@@ -41,6 +51,14 @@ public class BuilderAgent : Agent
 
         foreach(GameObject u in zPlanks) { Destroy(u); }
         zPlanks.Clear();
+
+        Start.transform.localPosition = new Vector3((float)Random.Range(xStartLower, xStartUpper) / 2f,
+                                                    Start.transform.localPosition.y,
+                                                    (float)Random.Range(zStartLower, zStartUpper) / 2f);
+
+        Target.transform.localPosition = new Vector3((float)Random.Range(xTargetLower, xTargetUpper) / 2f,
+                                                    Target.transform.localPosition.y,
+                                                    (float)Random.Range(zTargetLower, zTargetUpper) / 2f);
 
         // Builder.localPosition = Start.transform.localPosition + new Vector3(0, 2f, 0);
         this.transform.localPosition = Start.transform.localPosition; //  + new Vector3(0, 2f, 0);
