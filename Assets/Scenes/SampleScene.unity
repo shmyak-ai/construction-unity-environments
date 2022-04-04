@@ -150,8 +150,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 283371817}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.5, y: 0.5, z: -1}
-  m_LocalScale: {x: 1, y: 1.1, z: 1}
+  m_LocalPosition: {x: -1, y: 0.5, z: 1.5}
+  m_LocalScale: {x: 1, y: 1.2, z: 1}
   m_Children: []
   m_Father: {fileID: 1625780353}
   m_RootOrder: 3
@@ -578,8 +578,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1183057377}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.5, y: 0.5, z: 2.5}
-  m_LocalScale: {x: 1, y: 1.1, z: 1}
+  m_LocalPosition: {x: 1.5, y: 0.5, z: -1}
+  m_LocalScale: {x: 1, y: 1.2, z: 1}
   m_Children: []
   m_Father: {fileID: 1625780353}
   m_RootOrder: 1
@@ -1059,8 +1059,6 @@ MonoBehaviour:
   Target: {fileID: 1183057377}
   supportPrefab: {fileID: 6765921747037057844, guid: 8d1cba8f8e88371e08c6074b79c971bd, type: 3}
   nodePrefab: {fileID: 8918100451335224374, guid: 72f6cf2f8073319968aa821d081c897e, type: 3}
-  plankXPrefab: {fileID: 6934948644336175671, guid: b2026e2fa94c65b07b1d8092686ae033, type: 3}
-  plankZPrefab: {fileID: 2113140371524554584, guid: d71870b8eac4bdecbb096f5cf909568e, type: 3}
 --- !u!114 &2109136535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1106,16 +1104,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_SensorName: GridSensor
   m_CellScale: {x: 0.5, y: 5, z: 0.5}
-  m_GridSize: {x: 8, y: 1, z: 8}
+  m_GridSize: {x: 9, y: 1, z: 9}
   m_RotateWithAgent: 1
   m_AgentGameObject: {fileID: 0}
   m_DetectableTags:
-  - Agent
   - Start
   - Target
   - Support
-  - PlankX
-  - PlankZ
   - Node
   m_ColliderMask:
     serializedVersion: 2
@@ -1123,14 +1118,11 @@ MonoBehaviour:
   m_MaxColliderBufferSize: 500
   m_InitialColliderBufferSize: 4
   m_DebugColors:
-  - {r: 0.9528302, g: 0.57628334, b: 0.1033731, a: 0}
-  - {r: 0.10234957, g: 0.27050138, b: 0.8679245, a: 0}
-  - {r: 0.9056604, g: 0.06407974, b: 0.06407974, a: 0}
-  - {r: 0.17621933, g: 0.22959395, b: 0.8301887, a: 0}
-  - {r: 0.10332859, g: 0.2038827, b: 0.8113208, a: 0}
-  - {r: 0.07524917, g: 0.17327031, b: 0.8396226, a: 0}
-  - {r: 0.07524917, g: 0.17327031, b: 0.8396226, a: 0}
+  - {r: 0.10196078, g: 0.23883858, b: 0.9529412, a: 0}
+  - {r: 0.8666667, g: 0.10196078, b: 0.10196078, a: 0}
+  - {r: 0.06274509, g: 0.90588236, b: 0.06820036, a: 0}
+  - {r: 0.83137256, g: 0.17647056, b: 0.7970753, a: 0}
   m_GizmoYOffset: 0
-  m_ShowGizmos: 0
+  m_ShowGizmos: 1
   m_CompressionType: 1
   m_ObservationStacks: 1

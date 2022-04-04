@@ -14,29 +14,30 @@ public class BuilderAgent : Agent
     public GameObject Target;
     public GameObject supportPrefab;
     public GameObject nodePrefab;
-    public GameObject plankXPrefab;
-    public GameObject plankZPrefab;
+    // public GameObject plankXPrefab;
+    // public GameObject plankZPrefab;
 
-    int xStartLower = -8;
-    int xStartUpper = -2;
-    int zStartLower = -9;
-    int zStartUpper = 10;
+    int xStartLower = -4;  // -8;
+    int xStartUpper = 0;  // -2;
+    int zStartLower = -4;  // -9;
+    int zStartUpper = 5;  // 10;
 
-    int xTargetLower = 3;
-    int xTargetUpper = 9;
-    int zTargetLower = -9;
-    int zTargetUpper = 10;
+    int xTargetLower = 1;  // 3;
+    int xTargetUpper = 5;  // 9;
+    int zTargetLower = -4;  // -9;
+    int zTargetUpper = 5;  // 10;
 
     GameObject currentClosestObject;
     GameObject objectPretender;
     GameObject lastObject = null;
     float distanceToTarget;
     float initialDistanceToTarget;
+    float cumulativeReward = 0f;
 
     List<GameObject> supports = new List<GameObject>(); 
     List<GameObject> nodes = new List<GameObject>(); 
-    List<GameObject> xPlanks = new List<GameObject>(); 
-    List<GameObject> zPlanks = new List<GameObject>(); 
+    // List<GameObject> xPlanks = new List<GameObject>(); 
+    // List<GameObject> zPlanks = new List<GameObject>(); 
 
     void ResetEnv()
     {
@@ -46,26 +47,39 @@ public class BuilderAgent : Agent
         foreach(GameObject u in nodes) { Destroy(u); }
         nodes.Clear();
 
-        foreach(GameObject u in xPlanks) { Destroy(u); }
-        xPlanks.Clear();
+        // foreach(GameObject u in xPlanks) { Destroy(u); }
+        // xPlanks.Clear();
 
-        foreach(GameObject u in zPlanks) { Destroy(u); }
-        zPlanks.Clear();
+        // foreach(GameObject u in zPlanks) { Destroy(u); }
+        // zPlanks.Clear();
 
-        Start.transform.localPosition = new Vector3((float)Random.Range(xStartLower, xStartUpper) / 2f,
-                                                    Start.transform.localPosition.y,
-                                                    (float)Random.Range(zStartLower, zStartUpper) / 2f);
+        Vector3 firstPosition = new Vector3((float)Random.Range(xStartLower, xStartUpper),
+                                            Start.transform.localPosition.y,
+                                            (float)Random.Range(zStartLower, zStartUpper));
 
-        Target.transform.localPosition = new Vector3((float)Random.Range(xTargetLower, xTargetUpper) / 2f,
-                                                    Target.transform.localPosition.y,
-                                                    (float)Random.Range(zTargetLower, zTargetUpper) / 2f);
+        Vector3 secondPosition = new Vector3((float)Random.Range(xTargetLower, xTargetUpper),
+                                             Target.transform.localPosition.y,
+                                             (float)Random.Range(zTargetLower, zTargetUpper));
+        if (Random.Range(0, 2) == 0)
+        {
+            Start.transform.localPosition = firstPosition;
+            Target.transform.localPosition = secondPosition;
+        }
+        else
+        {
+            Start.transform.localPosition = secondPosition;
+            Target.transform.localPosition = firstPosition;
+        }
 
         // Builder.localPosition = Start.transform.localPosition + new Vector3(0, 2f, 0);
         this.transform.localPosition = Start.transform.localPosition; //  + new Vector3(0, 2f, 0);
 
         currentClosestObject = Start;
-        distanceToTarget = Vector3.Distance(currentClosestObject.transform.localPosition, Target.transform.localPosition);
+        distanceToTarget = Vector3.Distance(currentClosestObject.transform.localPosition + new Vector3(0, 0.6f, 0), 
+                                            Target.transform.localPosition + new Vector3(0, 0.6f, 0));
         initialDistanceToTarget = distanceToTarget;
+
+        cumulativeReward = 0f;
     }
 
     public override void OnEpisodeBegin()
@@ -123,31 +137,31 @@ public class BuilderAgent : Agent
                 lastObject = node;
                 nodes.Add(node);
                 return node;
-            case 7:
-                position.y = 1.05f;
-                GameObject xPlank = Instantiate(plankXPrefab, position, Quaternion.identity);
-                lastObject = xPlank;
-                xPlanks.Add(xPlank);
-                // if (Vector3.Distance(currentClosestObject.transform.localPosition, xPlank.transform.localPosition) < 3.0f) 
-                // { 
-                //     AddReward(0.01f); 
-                //     // Rigidbody rb = xPlank.GetComponent<Rigidbody>();
-                //     // Debug.Log($"Velocity: {rb.velocity.magnitude:F10}; " 
-                //     //         + $"Angular velocity: {rb.angularVelocity.magnitude:F10}; "
-                //     //         + $"Step count: {StepCount}; "
-                //     //         );
-                // }
-                return xPlank;
-            case 8:
-                position.y = 1.05f;
-                GameObject zPlank = Instantiate(plankZPrefab, position, Quaternion.identity);
-                lastObject = zPlank;
-                zPlanks.Add(zPlank);
-                // if (Vector3.Distance(currentClosestObject.transform.localPosition, zPlank.transform.localPosition) < 3.0f) 
-                // { 
-                //     AddReward(0.01f); 
-                // }
-                return zPlank;
+            // case 7:
+            //     position.y = 1.05f;
+            //     GameObject xPlank = Instantiate(plankXPrefab, position, Quaternion.identity);
+            //     lastObject = xPlank;
+            //     xPlanks.Add(xPlank);
+            //     // if (Vector3.Distance(currentClosestObject.transform.localPosition, xPlank.transform.localPosition) < 3.0f) 
+            //     // { 
+            //     //     AddReward(0.01f); 
+            //     //     // Rigidbody rb = xPlank.GetComponent<Rigidbody>();
+            //     //     // Debug.Log($"Velocity: {rb.velocity.magnitude:F10}; " 
+            //     //     //         + $"Angular velocity: {rb.angularVelocity.magnitude:F10}; "
+            //     //     //         + $"Step count: {StepCount}; "
+            //     //     //         );
+            //     // }
+            //     return xPlank;
+            // case 8:
+            //     position.y = 1.05f;
+            //     GameObject zPlank = Instantiate(plankZPrefab, position, Quaternion.identity);
+            //     lastObject = zPlank;
+            //     zPlanks.Add(zPlank);
+            //     // if (Vector3.Distance(currentClosestObject.transform.localPosition, zPlank.transform.localPosition) < 3.0f) 
+            //     // { 
+            //     //     AddReward(0.01f); 
+            //     // }
+            //     return zPlank;
         }
         // Debug.Log($"Supports: {supports.Count}; Nodes: {nodes.Count}");
         if(action == 1 | action == 2 | action == 3| action == 4)
@@ -155,13 +169,6 @@ public class BuilderAgent : Agent
             // Builder.transform.Translate(dirToGo);
             this.transform.Translate(dirToGo);
             // if (Builder.localPosition.x <= -5f | Builder.localPosition.x >= 5f | Builder.localPosition.z >= 5f | Builder.localPosition.z <= -5f)
-            if (this.transform.localPosition.x <= -5f | this.transform.localPosition.x >= 5f | 
-                this.transform.localPosition.z >= 5f | this.transform.localPosition.z <= -5f)
-            {
-                // Builder.localPosition = Start.transform.localPosition + new Vector3(0, 2f, 0);
-                Debug.Log($"Out of bounds. Step count: {StepCount}");
-                EndEpisode();
-            }
         }
         return null;
     }
@@ -179,38 +186,76 @@ public class BuilderAgent : Agent
         return false;
     }
 
+    bool AboveObject(List<GameObject> objects)
+    {
+        foreach(GameObject u in objects)
+        {
+            if(Mathf.Abs(this.transform.localPosition.x - u.transform.localPosition.x) <= 0.51f &&
+               Mathf.Abs(this.transform.localPosition.z - u.transform.localPosition.z) <= 0.51f)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Called every step of the engine. Here the agent takes an action.
     public override void OnActionReceived(ActionBuffers actionBuffers)
     {
-        // Debug.Log($"Cummulatibe reward: {GetCumulativeReward()}");
+        if (GetCumulativeReward() != cumulativeReward)
+        {
+            Debug.Log($"Cummulatibe reward: {GetCumulativeReward()}. Step count: {StepCount}");
+            cumulativeReward = GetCumulativeReward();
+        }
 
         SetReward(0.0f);
+
+        if (this.transform.localPosition.x <= -5f | this.transform.localPosition.x >= 5f | 
+            this.transform.localPosition.z >= 5f | this.transform.localPosition.z <= -5f)
+        {
+            // AddReward(-0.1f);
+            // Builder.localPosition = Start.transform.localPosition + new Vector3(0, 2f, 0);
+            Debug.Log($"Out of bounds. Step count: {StepCount}");
+            EndEpisode();
+        }
+
         if (StepCount > 1000)
         {
             Debug.Log($"Full episode. Step count: {StepCount}");
             EndEpisode();
         }
+
         // Check whether a new construct is stable
         if(AnyVelocity(supports))  // | AnyVelocity(nodes)
         { 
             // ResetEnv();
+            // AddReward(-0.1f);
             Debug.Log($"A support collapsed. Step count: {StepCount}");
             EndEpisode(); 
             return;
         }
-        if(AnyVelocity(xPlanks) | AnyVelocity(zPlanks) | AnyVelocity(nodes))
+        if(AnyVelocity(nodes))  // AnyVelocity(xPlanks) | AnyVelocity(zPlanks) | 
         { 
             // ResetEnv();
-            Debug.Log($"A plank collapsed. Step count: {StepCount}");
+            // AddReward(-0.1f);
+            Debug.Log($"A node collapsed. Step count: {StepCount}");
             EndEpisode(); 
             return;
         }
-        if(lastObject != null && Vector3.Distance(lastObject.transform.localPosition, currentClosestObject.transform.localPosition) <= 3.0f)
+
+        // to promote building around the closest to the target plank
+        if(lastObject != null && Vector3.Distance(lastObject.transform.localPosition, currentClosestObject.transform.localPosition) <= 1.5f)
         {
             AddReward(0.01f);
             // Debug.Log("Add a in range reward.");
             lastObject = null;
         }
+
+        // if(AboveObject(xPlanks) | AboveObject(zPlanks) | AboveObject(nodes))
+        // {
+        //     // Debug.Log("Above object");
+        //     AddReward(-0.01f);
+        // }
 
         // Check if a new xPlank, or zPlank from previous step touches a currentClosestObject
         // If so, reassing a currentClosestObject and recalculate distance
@@ -239,10 +284,15 @@ public class BuilderAgent : Agent
             if ((xInLine & zTouches) | (zInLine & xTouches))
             {
                 AddReward(0.1f);
-                float pretenderDistanceToTarget = Vector3.Distance(pretenderPos, Target.transform.localPosition);
-                if (pretenderDistanceToTarget < 2.0f)
+                float pretenderDistanceToTarget = Vector3.Distance(pretenderPos, Target.transform.localPosition + new Vector3(0, 0.6f, 0));
+                // Debug.Log($"Pretender distance is {pretenderDistanceToTarget}");
+                if (pretenderDistanceToTarget < 1.51f &&
+                    Mathf.Abs(pretenderPos.x - Target.transform.localPosition.x) < 0.1f |
+                    Mathf.Abs(pretenderPos.z - Target.transform.localPosition.z) < 0.1f)
                 {
                     AddReward(1.0f);
+                    Debug.Log("Successful finish.");
+                    Debug.Log($"Cummulatibe reward: {GetCumulativeReward()}. Step count: {StepCount}");
                     EndEpisode();
                     return;
                 }
@@ -251,6 +301,7 @@ public class BuilderAgent : Agent
                     currentClosestObject = objectPretender;
                     distanceToTarget = pretenderDistanceToTarget;
                     float reward = 1.0f - distanceToTarget / initialDistanceToTarget;
+                    // Debug.Log($"Got reward for getting closer to the target: {reward}");
                     AddReward(reward);
                 }
             }
@@ -287,13 +338,13 @@ public class BuilderAgent : Agent
         {
             discreteActionsOut[0] = 6;
         }
-        else if (Input.GetKeyUp(KeyCode.C))
-        {
-            discreteActionsOut[0] = 7;
-        }
-        else if (Input.GetKeyUp(KeyCode.V))
-        {
-            discreteActionsOut[0] = 8;
-        }
+        // else if (Input.GetKeyUp(KeyCode.C))
+        // {
+        //     discreteActionsOut[0] = 7;
+        // }
+        // else if (Input.GetKeyUp(KeyCode.V))
+        // {
+        //     discreteActionsOut[0] = 8;
+        // }
     }
 }
